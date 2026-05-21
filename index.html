@@ -1159,7 +1159,7 @@ const PUZZLES = [
       { id: 'd1', text: 'lar', role: 'plural' },
       { id: 'd2', text: 'in', role: 'poss' },
     ],
-    softening: { from: 'k', to: 'ğ', display: 'köpeğ' },
+    // NOT: -ler ünsüzle başlar, yumuşama olmaz. köpekler doğru.
   },
   {
     root: { text: 'çiçek', meaning: 'flower' },
@@ -1173,7 +1173,7 @@ const PUZZLES = [
       { id: 'd1', text: 'lar', role: 'plural' },
       { id: 'd2', text: 'in', role: 'poss' },
     ],
-    softening: { from: 'k', to: 'ğ', display: 'çiçeğ' },
+    // NOT: -ler ünsüzle başlar, yumuşama olmaz. çiçekler doğru.
   },
 
   // p → b (37-39)
@@ -1212,7 +1212,7 @@ const PUZZLES = [
       { id: 'd1', text: 'da', role: 'case' },
       { id: 'd2', text: 'in', role: 'poss' },
     ],
-    softening: { from: 'p', to: 'b', display: 'kitab' },
+    // NOT: -lar ünsüzle başlar, yumuşama olmaz. kitaplarıma doğru.
   },
 
   // t → d (40-41)
@@ -1237,7 +1237,7 @@ const PUZZLES = [
       { id: 'd1', text: 'ler', role: 'plural' },
       { id: 'd2', text: 'ın', role: 'poss' },
     ],
-    softening: { from: 't', to: 'd', display: 'kanad' },
+    // NOT: -lar ünsüzle başlar, yumuşama olmaz. kanatlarım doğru.
   },
 
   // ç → c (42-43)
@@ -1263,39 +1263,39 @@ const PUZZLES = [
       { id: 'd1', text: 'ler', role: 'plural' },
       { id: 'd2', text: 'da', role: 'case' },
     ],
-    softening: { from: 'ç', to: 'c', display: 'ağac' },
+    // NOT: -lar ünsüzle başlar, yumuşama olmaz. ağaçlarımdan doğru.
   },
 
   // Final challenges (44-45)
+  // FINAL 44: çocuğ + um + a (yumuşama gerçekten olur - 3 ek hepsi ünlü)
   {
     root: { text: 'çocuk', meaning: 'child' },
-    target: { meaning: 'to my children', emoji: '👶' },
+    target: { meaning: 'to my child', emoji: '👶' },
     suffixes: [
-      { id: 's1', text: 'lar', role: 'plural', desc: 'makes it plural' },
-      { id: 's2', text: 'ım', role: 'poss', desc: "shows 'my'" },
-      { id: 's3', text: 'a', role: 'case', desc: "shows 'to'" },
+      { id: 's1', text: 'um', role: 'poss', desc: "shows 'my'" },
+      { id: 's2', text: 'a', role: 'case', desc: "shows 'to'" },
     ],
     distractors: [
-      { id: 'd1', text: 'ler', role: 'plural' },
-      { id: 'd2', text: 'da', role: 'case' },
-      { id: 'd3', text: 'in', role: 'poss' },
+      { id: 'd1', text: 'lar', role: 'plural' },
+      { id: 'd2', text: 'in', role: 'poss' },
+      { id: 'd3', text: 'da', role: 'case' },
     ],
     softening: { from: 'k', to: 'ğ', display: 'çocuğ' },
   },
+  // FINAL 45: kanad + ım + dan (t→d yumuşar)
   {
-    root: { text: 'köpek', meaning: 'dog' },
-    target: { meaning: 'to your dogs', emoji: '🐕' },
+    root: { text: 'kanat', meaning: 'wing' },
+    target: { meaning: 'from my wing', emoji: '🦋' },
     suffixes: [
-      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
-      { id: 's2', text: 'in', role: 'poss', desc: "shows 'your'" },
-      { id: 's3', text: 'e', role: 'case', desc: "shows 'to'" },
+      { id: 's1', text: 'ım', role: 'poss', desc: "shows 'my'" },
+      { id: 's2', text: 'dan', role: 'case', desc: "shows 'from'" },
     ],
     distractors: [
-      { id: 'd1', text: 'im', role: 'poss' },
-      { id: 'd2', text: 'de', role: 'case' },
-      { id: 'd3', text: 'lar', role: 'plural' },
+      { id: 'd1', text: 'lar', role: 'plural' },
+      { id: 'd2', text: 'in', role: 'poss' },
+      { id: 'd3', text: 'da', role: 'case' },
     ],
-    softening: { from: 'k', to: 'ğ', display: 'köpeğ' },
+    softening: { from: 't', to: 'd', display: 'kanad' },
   },
 ];
 
@@ -1531,8 +1531,11 @@ function renderPlaying(app) {
   const nextRole = getNextRole(puzzle);
   const isComplete = state.built.length === puzzle.suffixes.length;
   const hasSoftening = !!puzzle.softening;
-  // Yumuşama: ilk ek bağlanmışsa lokomotifin metni değişir
-  const isSoftened = hasSoftening && state.built.length > 0;
+  // YUMUŞAMA KURALI: sadece ilk ek ÜNLÜ ile başlıyorsa olur.
+  // Çoğul -ler/-lar veya -de/-da/-den/-dan ünsüzle başlar → yumuşamaz.
+  const firstSuffix = state.built[0];
+  const isVowelStart = firstSuffix && /^[aeıioöuü]/i.test(firstSuffix.text);
+  const isSoftened = hasSoftening && state.built.length > 0 && isVowelStart;
   const rootDisplay = isSoftened ? puzzle.softening.display : puzzle.root.text;
   // Yeni eklenmiş ek var mı? (animasyon için)
   const justSoftened = hasSoftening && state.built.length === 1 && state.lastAction === 'softenJustHappened';
@@ -1644,7 +1647,11 @@ function getNextRole(puzzle) {
 
 function renderComplete(app) {
   const puzzle = PUZZLES[state.currentPuzzle];
-  const rootDisplay = puzzle.softening ? puzzle.softening.display : puzzle.root.text;
+  // Yumuşama sadece ilk ek ünlüyle başlıyorsa olur
+  const firstSuffix = state.built[0];
+  const isVowelStart = firstSuffix && /^[aeıioöuü]/i.test(firstSuffix.text);
+  const actuallySoftened = puzzle.softening && isVowelStart;
+  const rootDisplay = actuallySoftened ? puzzle.softening.display : puzzle.root.text;
   app.innerHTML = `
     <div class="overlay" style="position: relative; background: transparent; backdrop-filter: none; padding: 0;">
       <div class="modal">
@@ -1663,7 +1670,7 @@ function renderComplete(app) {
             <div class="breakdown-desc">
               <b>The locomotive</b>
               ${puzzle.root.meaning}
-              ${puzzle.softening ? `<div style="margin-top: 4px; font-size: 11px; color: var(--gold); font-weight: 700;">✨ ${puzzle.root.text} → ${puzzle.softening.display} (${puzzle.softening.from} softens to ${puzzle.softening.to})</div>` : ''}
+              ${actuallySoftened ? `<div style="margin-top: 4px; font-size: 11px; color: var(--gold); font-weight: 700;">✨ ${puzzle.root.text} → ${puzzle.softening.display} (${puzzle.softening.from} softens to ${puzzle.softening.to})</div>` : ''}
             </div>
           </div>
           ${state.built.map(s => `
@@ -1851,7 +1858,9 @@ function pickSuffix(id) {
     render();
 
     // İlk ek eklenince yumuşama varsa parıltı + animasyon tetikle
-    if (wasFirstSuffix && puzzle.softening) {
+    // ANCAK: ek ünlü ile başlamalı (çoğul -ler/-lar ile yumuşama olmaz)
+    const isVowelStart = /^[aeıioöuü]/i.test(suffix.text);
+    if (wasFirstSuffix && puzzle.softening && isVowelStart) {
       setTimeout(() => {
         triggerSoftening();
         SOUNDS.soften();
@@ -1976,7 +1985,17 @@ function showToast(msg, duration = 1400) {
 }
 
 // Başlat
-render();
+// Test modu: ?test=33 → 33. puzzle'dan başla (1-indexli kullanıcı için)
+const urlParams = new URLSearchParams(window.location.search);
+const testStart = parseInt(urlParams.get('test'), 10);
+if (!isNaN(testStart) && testStart >= 1 && testStart <= PUZZLES.length) {
+  // 1-indexli kullanıcı parametresini 0-indexli array'e çevir
+  state.currentPuzzle = testStart - 1;
+  state.lives = 99; // Test sırasında ölmeyelim
+  loadPuzzle();
+} else {
+  render();
+}
 
 // PWA Service Worker
 if ('serviceWorker' in navigator) {

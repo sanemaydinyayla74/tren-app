@@ -1,6 +1,6 @@
 // Suffix Train Service Worker
 // Sade ve güvenli — sadece statik dosyaları cache'liyor
-const CACHE_NAME = 'tren-v3';
+const CACHE_NAME = 'tren-v5';
 const ASSETS = [
   './',
   './index.html',
