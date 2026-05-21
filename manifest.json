@@ -1,0 +1,26 @@
+{
+  "name": "Tren — Turkish, piece by piece",
+  "short_name": "Tren",
+  "description": "Learn Turkish by building word trains. Free, fun, no signup. From locomotive (root) to wagons (suffixes) — piece by piece.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf6ef",
+  "theme_color": "#d97742",
+  "lang": "en",
+  "categories": ["education", "games"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

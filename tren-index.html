@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tren — Turkish, piece by piece</title>
+<meta name="description" content="Learn Turkish by building word trains. Free, fun, no signup. From root to suffixes — piece by piece.">
+<meta name="theme-color" content="#d97742">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Tren">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf6ef;
+    --bg-alt: #f2ebe0;
+    --panel: #ffffff;
+    --ink: #2a1f1a;
+    --muted: #8a7e72;
+    --line: #d9cfc0;
+
+    /* Renkler - Türk estetik */
+    --root: #d97742;       /* toprak turuncu - lokomotif */
+    --plural: #a8324c;     /* bordo - çoğul */
+    --poss: #3a7ca5;       /* çini mavisi - iyelik */
+    --case: #7a9244;       /* zeytin yeşili - hâl */
+    --gold: #b8853a;       /* bakır - vurgu */
+
+    --shadow: 0 3px 0 rgba(42,31,26,0.18);
+    --shadow-deep: 0 5px 0 rgba(42,31,26,0.22);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Nunito', sans-serif;
+    user-select: none;
+    overflow-x: hidden;
+  }
+
+  /* Arka plan dokusu - hafif Türk kilim hissi */
+  body {
+    background:
+      radial-gradient(circle at 15% 20%, rgba(168,50,76,0.04), transparent 35%),
+      radial-gradient(circle at 85% 75%, rgba(58,124,165,0.04), transparent 35%),
+      radial-gradient(circle at 50% 50%, rgba(122,146,68,0.03), transparent 40%),
+      var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 12px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--root); }
+  .header-stats {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .stat-item.hearts { color: var(--plural); }
+  .stat-item.streak { color: var(--gold); }
+  .stat-item.score { color: var(--ink); }
+
+  /* Hedef paneli */
+  .goal-panel {
+    background: var(--panel);
+    border: 2.5px solid var(--ink);
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .goal-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .goal-text {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+  .goal-text .emoji {
+    font-style: normal;
+    margin-right: 6px;
+  }
+
+  /* "Building" paneli - şu an inşa edilen */
+  .building-panel {
+    background: var(--bg-alt);
+    border: 2px dashed var(--line);
+    border-radius: 12px;
+    padding: 12px 14px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .building-panel.complete {
+    background: rgba(122,146,68,0.12);
+    border-style: solid;
+    border-color: var(--case);
+    animation: completePulse 0.6s ease-out;
+  }
+  @keyframes completePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+  }
+  .building-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .building-word {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.3px;
+  }
+  .building-word .root-part { color: var(--root); }
+  .building-word .plural-part { color: var(--plural); }
+  .building-word .poss-part { color: var(--poss); }
+  .building-word .case-part { color: var(--case); }
+  .building-panel.complete .building-word {
+    color: var(--case);
+  }
+
+  /* Hint badge */
+  .hint-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--ink);
+    color: var(--bg);
+    padding: 8px 14px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    box-shadow: var(--shadow);
+    margin: 0 auto;
+    align-self: center;
+  }
+  .hint-badge .role-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  .hint-badge.plural .role-dot { background: var(--plural); }
+  .hint-badge.poss .role-dot { background: var(--poss); }
+  .hint-badge.case .role-dot { background: var(--case); }
+  .hint-badge.plural { background: var(--plural); }
+  .hint-badge.poss { background: var(--poss); }
+  .hint-badge.case { background: var(--case); }
+  .hint-badge.complete {
+    background: var(--case);
+    color: white;
+  }
+
+  /* Tren */
+  .train-section {
+    background: var(--panel);
+    border: 2.5px solid var(--ink);
+    border-radius: 14px;
+    padding: 24px 16px 16px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .rail-track {
+    position: absolute;
+    bottom: 28px;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background:
+      repeating-linear-gradient(
+        90deg,
+        var(--ink) 0,
+        var(--ink) 2px,
+        transparent 2px,
+        transparent 10px
+      );
+    opacity: 0.4;
+  }
+  .rail-track::after {
+    content: '';
+    position: absolute;
+    bottom: 8px;
+    left: 0; right: 0;
+    height: 2px;
+    background: var(--ink);
+    opacity: 0.3;
+  }
+  .train {
+    display: flex;
+    align-items: flex-end;
+    gap: 0;
+    min-height: 100px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .train-car {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+  .car-body {
+    border: 2.5px solid var(--ink);
+    border-radius: 10px;
+    padding: 12px 14px;
+    min-width: 60px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+  .car-body .text {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    line-height: 1;
+  }
+  .car-body.locomotive {
+    background: var(--root);
+    border-radius: 10px 18px 10px 10px;
+    padding-left: 16px;
+    padding-right: 18px;
+  }
+  .car-body.locomotive::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    right: 8px;
+    width: 8px;
+    height: 12px;
+    background: var(--ink);
+    border-radius: 2px 2px 0 0;
+  }
+  .car-body.locomotive::after {
+    content: '☁';
+    position: absolute;
+    top: -24px;
+    right: 2px;
+    font-size: 14px;
+    color: var(--muted);
+    opacity: 0.7;
+  }
+  .car-body.suffix.plural { background: var(--plural); }
+  .car-body.suffix.poss { background: var(--poss); }
+  .car-body.suffix.case { background: var(--case); }
+
+  /* Yumuşama (soft consonant) */
+  .softening-badge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gold);
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 100px;
+    border: 1.5px solid var(--ink);
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    box-shadow: 0 2px 0 rgba(42,31,26,0.2);
+  }
+  .train-car.softened .car-body.locomotive {
+    animation: softeningPop 0.7s cubic-bezier(.34,1.56,.64,1);
+  }
+  .train-car.softened .softening-badge {
+    animation: softBadgeIn 0.6s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes softeningPop {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.15); filter: brightness(1.3); }
+    60% { transform: scale(0.95); }
+    100% { transform: scale(1); filter: brightness(1); }
+  }
+  @keyframes softBadgeIn {
+    0% { transform: translateX(-50%) translateY(10px) scale(0); opacity: 0; }
+    60% { transform: translateX(-50%) translateY(0) scale(1.2); opacity: 1; }
+    100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+  }
+  /* Sparkle - yumuşama parıltısı */
+  .sparkle {
+    position: absolute;
+    pointer-events: none;
+    font-size: 18px;
+    animation: sparkleFloat 0.9s ease-out forwards;
+    z-index: 10;
+  }
+  @keyframes sparkleFloat {
+    0% { transform: translate(0, 0) scale(0); opacity: 0; }
+    30% { transform: translate(var(--dx), var(--dy)) scale(1.2); opacity: 1; }
+    100% { transform: translate(calc(var(--dx) * 1.5), calc(var(--dy) * 1.5 - 20px)) scale(0); opacity: 0; }
+  }
+
+  .wheels {
+    display: flex;
+    gap: 14px;
+    margin-top: 4px;
+    padding: 0 8px;
+  }
+  .wheel {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--ink);
+    border: 2px solid var(--bg);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.2);
+  }
+  .train-car .coupler {
+    position: absolute;
+    right: -6px;
+    bottom: 16px;
+    width: 6px;
+    height: 3px;
+    background: var(--ink);
+    z-index: 1;
+  }
+  .train-car:last-child .coupler { display: none; }
+
+  /* Vagon ekleme animasyonu */
+  .train-car.entering {
+    animation: chooChoo 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes chooChoo {
+    0% { transform: translateX(-50px) scale(0.8); opacity: 0; }
+    60% { transform: translateX(4px) scale(1.05); opacity: 1; }
+    100% { transform: translateX(0) scale(1); opacity: 1; }
+  }
+
+  /* Yanlış sallama */
+  .train.shake {
+    animation: shake 0.4s ease-in-out;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0) rotate(0); }
+    20% { transform: translateX(-8px) rotate(-1deg); }
+    40% { transform: translateX(8px) rotate(1deg); }
+    60% { transform: translateX(-6px) rotate(-0.5deg); }
+    80% { transform: translateX(6px) rotate(0.5deg); }
+  }
+
+  /* Seçenekler */
+  .options-panel {
+    background: var(--panel);
+    border: 2.5px solid var(--ink);
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: var(--shadow);
+  }
+  .options-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 10px;
+  }
+  .option-btn {
+    background: var(--bg-alt);
+    border: 2.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 14px 8px;
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: all 0.1s;
+    color: var(--ink);
+    position: relative;
+  }
+  .option-btn:active {
+    transform: translateY(3px);
+    box-shadow: none;
+  }
+  .option-btn.wrong-flash {
+    background: var(--plural);
+    color: white;
+    animation: wrongFlash 0.4s;
+  }
+  @keyframes wrongFlash {
+    0%, 100% { background: var(--plural); color: white; }
+    50% { background: var(--bg-alt); color: var(--ink); }
+  }
+  .option-btn.used {
+    opacity: 0.3;
+    pointer-events: none;
+  }
+  .option-btn .role-tag {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--ink);
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 100px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* Modal */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(42,31,26,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 20px;
+    backdrop-filter: blur(8px);
+  }
+  .overlay.hidden { display: none; }
+  .modal {
+    background: var(--bg);
+    border: 3px solid var(--ink);
+    border-radius: 18px;
+    padding: 32px 26px;
+    text-align: center;
+    max-width: 360px;
+    width: 100%;
+    box-shadow: 0 8px 0 rgba(42,31,26,0.4);
+  }
+  .modal-emoji {
+    font-size: 56px;
+    margin-bottom: 12px;
+  }
+  .modal-title {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+  .modal-title .accent { color: var(--root); }
+  .modal-subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 22px;
+    line-height: 1.5;
+  }
+
+  /* Breakdown - kelime parçaları */
+  .breakdown {
+    background: var(--panel);
+    border: 2px solid var(--ink);
+    border-radius: 12px;
+    padding: 14px;
+    margin: 18px 0;
+    text-align: left;
+  }
+  .breakdown-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-chip {
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    color: white;
+    min-width: 50px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .breakdown-chip.root { background: var(--root); }
+  .breakdown-chip.plural { background: var(--plural); }
+  .breakdown-chip.poss { background: var(--poss); }
+  .breakdown-chip.case { background: var(--case); }
+  .breakdown-desc {
+    font-size: 13px;
+    color: var(--ink);
+    flex: 1;
+    line-height: 1.4;
+  }
+  .breakdown-desc b {
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .modal-btn {
+    background: var(--ink);
+    color: var(--bg);
+    border: 2.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 14px 30px;
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    width: 100%;
+    text-transform: uppercase;
+  }
+  .modal-btn:active {
+    transform: translateY(3px);
+    box-shadow: none;
+  }
+  .modal-btn.secondary {
+    background: var(--bg-alt);
+    color: var(--ink);
+    margin-top: 8px;
+  }
+
+  /* Menü ekranı */
+  .menu-screen {
+    text-align: center;
+  }
+  .menu-train {
+    display: flex;
+    justify-content: center;
+    margin: 24px 0;
+    gap: 0;
+    align-items: flex-end;
+    animation: floatTrain 3s ease-in-out infinite;
+  }
+  @keyframes floatTrain {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  /* Learn screen */
+  .learn-step {
+    background: var(--panel);
+    border: 2.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+    text-align: left;
+    box-shadow: var(--shadow);
+  }
+  .learn-step-num {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--root);
+    color: white;
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    line-height: 28px;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .learn-step h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  .learn-step p {
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.5;
+    margin-bottom: 6px;
+  }
+  .mini-train {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 0;
+    margin: 10px 0;
+  }
+  .mini-car {
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-family: 'Fraunces', serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .mini-car.root { background: var(--root); border-radius: 6px 12px 6px 6px; }
+  .mini-car.plural { background: var(--plural); }
+  .mini-car.poss { background: var(--poss); }
+  .mini-car.case { background: var(--case); }
+
+  .row-compare {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 10px 0;
+    font-size: 13px;
+  }
+  .row-compare .lang-tag {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    min-width: 50px;
+  }
+  .row-compare .lang-text {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 500;
+  }
+  .row-compare .lang-text .pieces {
+    color: var(--root);
+  }
+
+  /* Confetti */
+  #fxLayer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 500;
+  }
+  .confetti {
+    position: absolute;
+    width: 8px;
+    height: 14px;
+  }
+  @keyframes confettiFall {
+    0% { transform: translate(0, -50px) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--dx), 110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    top: 22%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--ink);
+    color: var(--bg);
+    padding: 10px 20px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 700;
+    z-index: 400;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    border: 2px solid var(--bg);
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="container" id="app"></div>
+<div id="fxLayer"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// =====================================================
+// İÇERİK - 15 puzzle (kademeli zorluk)
+// =====================================================
+const PUZZLES = [
+  // ========== KOLAY: Tek ek (yumuşama yok) ==========
+  // 1: Sadece çoğul
+  {
+    root: { text: 'çocuk', meaning: 'child' },
+    target: { meaning: 'children', emoji: '👶' },
+    suffixes: [
+      { id: 's1', text: 'lar', role: 'plural', desc: 'makes it plural' },
+    ],
+    distractors: [
+      { id: 'd1', text: 'ler', role: 'plural' },
+      { id: 'd2', text: 'um', role: 'poss' },
+    ],
+  },
+  // 2: Sadece çoğul (yumuşama yok)
+  {
+    root: { text: 'kedi', meaning: 'cat' },
+    target: { meaning: 'cats', emoji: '🐈' },
+    suffixes: [
+      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
+    ],
+    distractors: [
+      { id: 'd1', text: 'lar', role: 'plural' },
+      { id: 'd2', text: 'm', role: 'poss' },
+    ],
+  },
+  // 3: Sadece hal (yumuşama yok)
+  {
+    root: { text: 'okul', meaning: 'school' },
+    target: { meaning: 'in school', emoji: '🏫' },
+    suffixes: [
+      { id: 's1', text: 'da', role: 'case', desc: "shows 'in/at'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'dan', role: 'case' },
+      { id: 'd2', text: 'a', role: 'case' },
+    ],
+  },
+
+  // ========== YUMUŞAMA TANIŞMA ==========
+  // 4: İLK yumuşama! k → ğ
+  {
+    root: { text: 'köpek', meaning: 'dog' },
+    target: { meaning: 'my dog', emoji: '🐕' },
+    suffixes: [
+      { id: 's1', text: 'im', role: 'poss', desc: "shows 'my'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'in', role: 'poss' },
+      { id: 'd2', text: 'ler', role: 'plural' },
+    ],
+    softening: { from: 'k', to: 'ğ', display: 'köpeğ' },
+    softeningIntro: true,
+  },
+  // 5: p → b
+  {
+    root: { text: 'kitap', meaning: 'book' },
+    target: { meaning: 'in my book', emoji: '📖' },
+    suffixes: [
+      { id: 's1', text: 'ım', role: 'poss', desc: "shows 'my'" },
+      { id: 's2', text: 'da', role: 'case', desc: "shows 'in'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'lar', role: 'plural' },
+      { id: 'd2', text: 'dan', role: 'case' },
+      { id: 'd3', text: 'ın', role: 'poss' },
+    ],
+    softening: { from: 'p', to: 'b', display: 'kitab' },
+  },
+  // 6: t → d
+  {
+    root: { text: 'kanat', meaning: 'wing' },
+    target: { meaning: 'his/her wing', emoji: '🦋' },
+    suffixes: [
+      { id: 's1', text: 'ı', role: 'poss', desc: "shows 'his/her'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'ım', role: 'poss' },
+      { id: 'd2', text: 'lar', role: 'plural' },
+      { id: 'd3', text: 'a', role: 'case' },
+    ],
+    softening: { from: 't', to: 'd', display: 'kanad' },
+  },
+  // 7: ç → c
+  {
+    root: { text: 'ağaç', meaning: 'tree' },
+    target: { meaning: 'to the tree', emoji: '🌳' },
+    suffixes: [
+      { id: 's1', text: 'a', role: 'case', desc: "shows 'to'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'da', role: 'case' },
+      { id: 'd2', text: 'lar', role: 'plural' },
+      { id: 'd3', text: 'ım', role: 'poss' },
+    ],
+    softening: { from: 'ç', to: 'c', display: 'ağac' },
+  },
+
+  // ========== ORTA: İki ek ==========
+  // 8: Yumuşama yok
+  {
+    root: { text: 'öğretmen', meaning: 'teacher' },
+    target: { meaning: 'from the teachers', emoji: '👩‍🏫' },
+    suffixes: [
+      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'den', role: 'case', desc: "shows 'from'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'im', role: 'poss' },
+      { id: 'd2', text: 'de', role: 'case' },
+      { id: 'd3', text: 'lar', role: 'plural' },
+    ],
+  },
+  // 9: Yumuşama yok
+  {
+    root: { text: 'arkadaş', meaning: 'friend' },
+    target: { meaning: 'my friends', emoji: '👥' },
+    suffixes: [
+      { id: 's1', text: 'lar', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'ım', role: 'poss', desc: "shows 'my'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'ın', role: 'poss' },
+      { id: 'd2', text: 'da', role: 'case' },
+    ],
+  },
+  // 10: Yumuşama yok
+  {
+    root: { text: 'göz', meaning: 'eye' },
+    target: { meaning: 'in my eyes', emoji: '👁️' },
+    suffixes: [
+      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'im', role: 'poss', desc: "shows 'my'" },
+      { id: 's3', text: 'de', role: 'case', desc: "shows 'in'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'den', role: 'case' },
+      { id: 'd2', text: 'in', role: 'poss' },
+    ],
+  },
+
+  // ========== ZOR: Üç ek + yumuşama ==========
+  // 11: ev (yumuşama yok)
+  {
+    root: { text: 'ev', meaning: 'house' },
+    target: { meaning: 'from my houses', emoji: '🏠' },
+    suffixes: [
+      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'im', role: 'poss', desc: "shows 'my'" },
+      { id: 's3', text: 'den', role: 'case', desc: "shows 'from'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'de', role: 'case' },
+      { id: 'd2', text: 'in', role: 'poss' },
+    ],
+  },
+  // 12: araba (yumuşama yok)
+  {
+    root: { text: 'araba', meaning: 'car' },
+    target: { meaning: 'to our cars', emoji: '🚗' },
+    suffixes: [
+      { id: 's1', text: 'lar', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'mız', role: 'poss', desc: "shows 'our'" },
+      { id: 's3', text: 'a', role: 'case', desc: "shows 'to'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'da', role: 'case' },
+      { id: 'd2', text: 'ım', role: 'poss' },
+    ],
+  },
+  // 13: çiçek - 3 ek + k→ğ
+  {
+    root: { text: 'çiçek', meaning: 'flower' },
+    target: { meaning: 'in my flowers', emoji: '🌷' },
+    suffixes: [
+      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'im', role: 'poss', desc: "shows 'my'" },
+      { id: 's3', text: 'de', role: 'case', desc: "shows 'in'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'lar', role: 'plural' },
+      { id: 'd2', text: 'ım', role: 'poss' },
+    ],
+    softening: { from: 'k', to: 'ğ', display: 'çiçeğ' },
+  },
+  // 14: kitap - 3 ek + p→b
+  {
+    root: { text: 'kitap', meaning: 'book' },
+    target: { meaning: 'to my books', emoji: '📚' },
+    suffixes: [
+      { id: 's1', text: 'lar', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'ım', role: 'poss', desc: "shows 'my'" },
+      { id: 's3', text: 'a', role: 'case', desc: "shows 'to'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'da', role: 'case' },
+      { id: 'd2', text: 'in', role: 'poss' },
+    ],
+    softening: { from: 'p', to: 'b', display: 'kitab' },
+  },
+  // 15: köpek - 3 ek + k→ğ final
+  {
+    root: { text: 'köpek', meaning: 'dog' },
+    target: { meaning: 'from my dogs', emoji: '🐕' },
+    suffixes: [
+      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'im', role: 'poss', desc: "shows 'my'" },
+      { id: 's3', text: 'den', role: 'case', desc: "shows 'from'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'lar', role: 'plural' },
+      { id: 'd2', text: 'in', role: 'poss' },
+      { id: 'd3', text: 'de', role: 'case' },
+    ],
+    softening: { from: 'k', to: 'ğ', display: 'köpeğ' },
+  },
+];
+
+const ROLE_ORDER = ['plural', 'poss', 'case'];
+const ROLE_LABEL = {
+  plural: 'PLURAL',
+  poss: 'WHOSE?',
+  case: 'WHERE / TO / FROM?',
+};
+const ROLE_DESC = {
+  plural: 'More than one?',
+  poss: "Whose is it?",
+  case: 'Where? To? From?',
+};
+
+// State
+let state = {
+  screen: 'menu',
+  currentPuzzle: 0,
+  built: [],
+  available: [],
+  lives: 3,
+  streak: 0,
+  totalSolved: 0,
+  isLocked: false,
+};
+
+// =====================================================
+// RENDER
+// =====================================================
+function render() {
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+
+  if (state.screen === 'menu') renderMenu(app);
+  else if (state.screen === 'learn') renderLearn(app);
+  else if (state.screen === 'playing') renderPlaying(app);
+  else if (state.screen === 'complete') renderComplete(app);
+  else if (state.screen === 'gameover') renderGameOver(app);
+  else if (state.screen === 'won') renderWon(app);
+
+  attachListeners();
+}
+
+function renderMenu(app) {
+  app.innerHTML = `
+    <div class="menu-screen">
+      <div style="padding: 20px 0 10px;">
+        <div class="logo" style="font-size: 48px; margin-bottom: 4px;">T<span>ren</span></div>
+        <div style="font-size: 11px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; font-weight: 700;">Turkish · piece by piece</div>
+      </div>
+
+      <div class="menu-train">
+        <div class="train-car">
+          <div class="car-body locomotive"><div class="text">ev</div></div>
+          <div class="wheels"><div class="wheel"></div><div class="wheel"></div></div>
+        </div>
+        <div class="train-car" style="margin-left: -2px;">
+          <div class="coupler" style="left: -6px; right: auto;"></div>
+          <div class="car-body suffix plural"><div class="text">ler</div></div>
+          <div class="wheels"><div class="wheel"></div><div class="wheel"></div></div>
+        </div>
+        <div class="train-car" style="margin-left: -2px;">
+          <div class="coupler" style="left: -6px; right: auto;"></div>
+          <div class="car-body suffix poss"><div class="text">im</div></div>
+          <div class="wheels"><div class="wheel"></div><div class="wheel"></div></div>
+        </div>
+        <div class="train-car" style="margin-left: -2px;">
+          <div class="coupler" style="left: -6px; right: auto;"></div>
+          <div class="car-body suffix case"><div class="text">den</div></div>
+          <div class="wheels"><div class="wheel"></div><div class="wheel"></div></div>
+        </div>
+      </div>
+
+      <div style="font-family: 'Fraunces', serif; font-size: 22px; font-style: italic; margin: 12px 0 8px; color: var(--ink);">
+        <span style="color: var(--root)">ev</span><span style="color: var(--plural)">ler</span><span style="color: var(--poss)">im</span><span style="color: var(--case)">den</span>
+      </div>
+      <div style="font-size: 13px; color: var(--muted); margin-bottom: 28px; font-style: italic;">"from my houses"</div>
+
+      <button class="modal-btn" data-action="start">START</button>
+      <button class="modal-btn secondary" data-action="learn">📖 How Turkish works</button>
+    </div>
+  `;
+}
+
+function renderLearn(app) {
+  app.innerHTML = `
+    <header>
+      <div class="logo-wrap">
+        <div class="logo">Turkish <span>in 60s</span></div>
+      </div>
+      <button style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--ink);" data-action="back-to-menu">×</button>
+    </header>
+
+    <div class="learn-step">
+      <div class="learn-step-num">1</div>
+      <h3>Turkish words are trains</h3>
+      <p>In English you say four separate words:</p>
+      <div class="row-compare">
+        <span class="lang-tag">EN</span>
+        <span class="lang-text">from · my · house · s</span>
+      </div>
+      <p style="margin-top: 8px;">In Turkish, all of these stick together into one word:</p>
+      <div class="row-compare">
+        <span class="lang-tag">TR</span>
+        <span class="lang-text">ev<span class="pieces">lerimden</span></span>
+      </div>
+    </div>
+
+    <div class="learn-step">
+      <div class="learn-step-num">2</div>
+      <h3>The wagons follow a rule</h3>
+      <p>Word endings always stick in the same order — like wagons after a locomotive:</p>
+      <div class="mini-train">
+        <div class="mini-car root">root</div>
+        <div class="mini-car plural">plural</div>
+        <div class="mini-car poss">whose?</div>
+        <div class="mini-car case">where?</div>
+      </div>
+      <p style="font-size: 12px; color: var(--muted); margin-top: 8px;">Once you learn this order, you can build thousands of words.</p>
+    </div>
+
+    <div class="learn-step">
+      <div class="learn-step-num">3</div>
+      <h3>Your job</h3>
+      <p>Each puzzle gives you a locomotive (a root word) and some wagons (suffixes). Pick them in the right order to match the English meaning.</p>
+      <p style="font-size: 12px; color: var(--muted); margin-top: 8px;">Don't worry about memorizing names — just feel the order.</p>
+    </div>
+
+    <button class="modal-btn" data-action="start">START</button>
+  `;
+}
+
+function renderPlaying(app) {
+  const puzzle = PUZZLES[state.currentPuzzle];
+  const nextRole = getNextRole(puzzle);
+  const isComplete = state.built.length === puzzle.suffixes.length;
+  const hasSoftening = !!puzzle.softening;
+  // Yumuşama: ilk ek bağlanmışsa lokomotifin metni değişir
+  const isSoftened = hasSoftening && state.built.length > 0;
+  const rootDisplay = isSoftened ? puzzle.softening.display : puzzle.root.text;
+  // Yeni eklenmiş ek var mı? (animasyon için)
+  const justSoftened = hasSoftening && state.built.length === 1 && state.lastAction === 'softenJustHappened';
+
+  // "Building" text
+  let buildingHTML = `<span class="root-part">${rootDisplay}</span>`;
+  state.built.forEach(s => {
+    const cls = s.role + '-part';
+    buildingHTML += `<span class="${cls}">${s.text}</span>`;
+  });
+
+  // Hint badge
+  let hintHTML = '';
+  if (isComplete) {
+    hintHTML = `<div class="hint-badge complete">✓ All wagons attached</div>`;
+  } else {
+    const totalNeeded = puzzle.suffixes.length;
+    const isFirstWagon = state.built.length === 0;
+    if (totalNeeded === 1 && isFirstWagon) {
+      // Tek ek puzzle - daha basit mesaj
+      hintHTML = `
+        <div class="hint-badge ${nextRole}">
+          <span class="role-dot"></span>
+          One wagon: ${ROLE_LABEL[nextRole]}
+        </div>
+      `;
+    } else {
+      hintHTML = `
+        <div class="hint-badge ${nextRole}">
+          <span class="role-dot"></span>
+          Next wagon: ${ROLE_LABEL[nextRole]}
+        </div>
+      `;
+    }
+  }
+
+  app.innerHTML = `
+    <header>
+      <div class="logo-wrap">
+        <div class="logo">T<span>ren</span></div>
+      </div>
+      <div class="header-stats">
+        <div class="stat-item hearts">${'♥'.repeat(state.lives)}${'♡'.repeat(3-state.lives)}</div>
+        <div class="stat-item streak">🔥${state.streak}</div>
+        <div class="stat-item score">${state.totalSolved}/${PUZZLES.length}</div>
+      </div>
+    </header>
+
+    <div class="goal-panel">
+      <div class="goal-label">Build this meaning</div>
+      <div class="goal-text"><span class="emoji">${puzzle.target.emoji}</span>${puzzle.target.meaning}</div>
+    </div>
+
+    <div class="building-panel ${isComplete ? 'complete' : ''}">
+      <div class="building-label">You're building</div>
+      <div class="building-word">${buildingHTML}</div>
+    </div>
+
+    ${hintHTML}
+
+    <div class="train-section">
+      <div class="rail-track"></div>
+      <div class="train" id="train">
+        <div class="train-car ${justSoftened ? 'softened' : ''}">
+          <div class="car-body locomotive">
+            <div class="text" id="locomotiveText">${rootDisplay}</div>
+            ${isSoftened ? `<div class="softening-badge">${puzzle.softening.from}→${puzzle.softening.to}</div>` : ''}
+          </div>
+          <div class="wheels"><div class="wheel"></div><div class="wheel"></div></div>
+        </div>
+        ${state.built.map(s => `
+          <div class="train-car">
+            <div class="coupler" style="left: -6px; right: auto;"></div>
+            <div class="car-body suffix ${s.role}"><div class="text">${s.text}</div></div>
+            <div class="wheels"><div class="wheel"></div><div class="wheel"></div></div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="options-panel">
+      <div class="options-label">Choose the next wagon</div>
+      <div class="options-grid">
+        ${state.available.map(s => {
+          const used = state.built.some(b => b.id === s.id);
+          return `
+            <button class="option-btn ${used ? 'used' : ''}" data-action="pick" data-id="${s.id}">
+              ${s.text}
+            </button>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function getNextRole(puzzle) {
+  // İnşa edilenlerin role'ları
+  const builtRoles = state.built.map(s => s.role);
+  // Hedeflenecek role sırası
+  for (const role of ROLE_ORDER) {
+    if (puzzle.suffixes.some(s => s.role === role) && !builtRoles.includes(role)) {
+      return role;
+    }
+  }
+  return null;
+}
+
+function renderComplete(app) {
+  const puzzle = PUZZLES[state.currentPuzzle];
+  const rootDisplay = puzzle.softening ? puzzle.softening.display : puzzle.root.text;
+  app.innerHTML = `
+    <div class="overlay" style="position: relative; background: transparent; backdrop-filter: none; padding: 0;">
+      <div class="modal">
+        <div class="modal-emoji">🚂</div>
+        <div class="modal-title">All <span class="accent">aboard!</span></div>
+        <div class="modal-subtitle">
+          <span style="font-family: 'Fraunces', serif; font-size: 22px; color: var(--ink); display: block; margin: 8px 0;">
+            <span style="color: var(--root)">${rootDisplay}</span>${state.built.map(s => `<span style="color: var(--${s.role === 'poss' ? 'poss' : s.role})">${s.text}</span>`).join('')}
+          </span>
+          = "${puzzle.target.meaning}"
+        </div>
+
+        <div class="breakdown">
+          <div class="breakdown-row">
+            <div class="breakdown-chip root">${rootDisplay}</div>
+            <div class="breakdown-desc">
+              <b>The locomotive</b>
+              ${puzzle.root.meaning}
+              ${puzzle.softening ? `<div style="margin-top: 4px; font-size: 11px; color: var(--gold); font-weight: 700;">✨ ${puzzle.root.text} → ${puzzle.softening.display} (${puzzle.softening.from} softens to ${puzzle.softening.to})</div>` : ''}
+            </div>
+          </div>
+          ${state.built.map(s => `
+            <div class="breakdown-row">
+              <div class="breakdown-chip ${s.role}">${s.text}</div>
+              <div class="breakdown-desc">
+                <b>${ROLE_LABEL[s.role]}</b>
+                ${s.desc}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div style="font-size: 12px; color: var(--muted); margin-bottom: 16px;">
+          🔥 Streak: <b style="color: var(--gold)">${state.streak}</b>
+        </div>
+
+        <button class="modal-btn" data-action="next">NEXT TRAIN →</button>
+      </div>
+    </div>
+  `;
+  launchConfetti();
+}
+
+function renderGameOver(app) {
+  app.innerHTML = `
+    <div class="overlay" style="position: relative; background: transparent; backdrop-filter: none; padding: 0;">
+      <div class="modal">
+        <div class="modal-emoji" style="animation: shake 1s ease-in-out infinite;">🚂💨</div>
+        <div class="modal-title">Train <span class="accent">derailed</span></div>
+        <div class="modal-subtitle">
+          You solved <b>${state.totalSolved}</b> puzzle${state.totalSolved !== 1 ? 's' : ''}.<br>
+          Remember the wagon order:
+        </div>
+
+        <div class="mini-train" style="margin: 16px 0;">
+          <div class="mini-car root">root</div>
+          <div class="mini-car plural">plural</div>
+          <div class="mini-car poss">whose?</div>
+          <div class="mini-car case">where?</div>
+        </div>
+
+        <button class="modal-btn" data-action="try-again">TRY AGAIN</button>
+        <button class="modal-btn secondary" data-action="back-to-menu">BACK TO MENU</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderWon(app) {
+  app.innerHTML = `
+    <div class="overlay" style="position: relative; background: transparent; backdrop-filter: none; padding: 0;">
+      <div class="modal">
+        <div class="modal-emoji">🏆</div>
+        <div class="modal-title">You did <span class="accent">it!</span></div>
+        <div class="modal-subtitle">
+          All ${PUZZLES.length} trains built.<br>
+          You're starting to feel Turkish.
+        </div>
+
+        <div style="background: var(--bg-alt); border-radius: 10px; padding: 14px; margin: 18px 0; display: flex; justify-content: space-around; text-align: center;">
+          <div>
+            <div style="font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; color: var(--root);">${state.totalSolved}</div>
+            <div style="font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;">Solved</div>
+          </div>
+          <div>
+            <div style="font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; color: var(--gold);">${state.streak}</div>
+            <div style="font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;">Streak</div>
+          </div>
+          <div>
+            <div style="font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; color: var(--plural);">${'♥'.repeat(state.lives)}</div>
+            <div style="font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;">Hearts</div>
+          </div>
+        </div>
+
+        <div style="font-size: 12px; color: var(--muted); margin-bottom: 18px; line-height: 1.5; font-style: italic;">
+          This was just a taste. The real game has hundreds of trains, verbs, questions, and conversations.
+        </div>
+
+        <button class="modal-btn" data-action="back-to-menu">BACK TO START</button>
+      </div>
+    </div>
+  `;
+  launchConfetti(80);
+}
+
+// =====================================================
+// EVENT
+// =====================================================
+function attachListeners() {
+  document.querySelectorAll('[data-action]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (state.isLocked) return;
+      const action = el.dataset.action;
+      handleAction(action, el);
+    });
+  });
+}
+
+function handleAction(action, el) {
+  switch (action) {
+    case 'start':
+      startNewGame();
+      break;
+    case 'learn':
+      state.screen = 'learn';
+      render();
+      break;
+    case 'back-to-menu':
+      state.screen = 'menu';
+      render();
+      break;
+    case 'pick':
+      pickSuffix(el.dataset.id);
+      break;
+    case 'next':
+      nextPuzzle();
+      break;
+    case 'try-again':
+      startNewGame();
+      break;
+  }
+}
+
+function startNewGame() {
+  state = {
+    screen: 'playing',
+    currentPuzzle: 0,
+    built: [],
+    available: [],
+    lives: 3,
+    streak: 0,
+    totalSolved: 0,
+    isLocked: false,
+  };
+  loadPuzzle();
+}
+
+function loadPuzzle() {
+  const puzzle = PUZZLES[state.currentPuzzle];
+  state.built = [];
+  const all = [...puzzle.suffixes, ...puzzle.distractors];
+  state.available = shuffle(all);
+  state.screen = 'playing';
+  state.isLocked = false;
+  render();
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickSuffix(id) {
+  const puzzle = PUZZLES[state.currentPuzzle];
+  const suffix = state.available.find(s => s.id === id);
+  if (!suffix) return;
+  if (state.built.some(b => b.id === id)) return;
+
+  const nextRole = getNextRole(puzzle);
+  const isCorrect = suffix.role === nextRole && puzzle.suffixes.some(s => s.id === id);
+
+  if (isCorrect) {
+    const wasFirstSuffix = state.built.length === 0;
+    state.built.push(suffix);
+    render();
+
+    // İlk ek eklenince yumuşama varsa parıltı + animasyon tetikle
+    if (wasFirstSuffix && puzzle.softening) {
+      setTimeout(() => triggerSoftening(), 100);
+    }
+
+    if (state.built.length === puzzle.suffixes.length) {
+      // Tamamlandı
+      state.isLocked = true;
+      state.streak++;
+      state.totalSolved++;
+      setTimeout(() => {
+        if (state.currentPuzzle >= PUZZLES.length - 1) {
+          state.screen = 'won';
+        } else {
+          state.screen = 'complete';
+        }
+        state.isLocked = false;  // Modal'da butonlar çalışsın
+        render();
+      }, 800);
+    }
+  } else {
+    // Yanlış
+    state.isLocked = true;
+    state.lives--;
+    state.streak = 0;
+
+    // Sallama
+    const train = document.getElementById('train');
+    if (train) {
+      train.classList.add('shake');
+      setTimeout(() => train.classList.remove('shake'), 400);
+    }
+
+    // Yanlış flash
+    const btn = document.querySelector(`[data-id="${id}"]`);
+    if (btn) {
+      btn.classList.add('wrong-flash');
+      setTimeout(() => btn.classList.remove('wrong-flash'), 400);
+    }
+
+    showToast(suffix.role === nextRole ? "Right type, wrong suffix" : `Need ${ROLE_LABEL[nextRole]} first`);
+
+    setTimeout(() => {
+      if (state.lives <= 0) {
+        state.screen = 'gameover';
+        state.isLocked = false;  // Modal butonları çalışsın
+        render();
+      } else {
+        state.isLocked = false;
+        render();
+      }
+    }, 500);
+  }
+}
+
+function nextPuzzle() {
+  state.currentPuzzle++;
+  loadPuzzle();
+}
+
+function triggerSoftening() {
+  // Lokomotifte parıltı animasyonu
+  const locoCar = document.querySelector('.train-car');
+  if (locoCar) {
+    locoCar.classList.add('softened');
+    // 4 yöne sparkle yıldızları
+    const rect = locoCar.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const positions = [
+      { dx: -30, dy: -20, emoji: '✨' },
+      { dx: 30, dy: -25, emoji: '✨' },
+      { dx: -20, dy: 25, emoji: '⭐' },
+      { dx: 25, dy: 20, emoji: '✨' },
+    ];
+    positions.forEach((p, i) => {
+      setTimeout(() => {
+        const s = document.createElement('div');
+        s.className = 'sparkle';
+        s.textContent = p.emoji;
+        s.style.position = 'fixed';
+        s.style.left = cx + 'px';
+        s.style.top = cy + 'px';
+        s.style.setProperty('--dx', p.dx + 'px');
+        s.style.setProperty('--dy', p.dy + 'px');
+        document.getElementById('fxLayer').appendChild(s);
+        setTimeout(() => s.remove(), 900);
+      }, i * 80);
+    });
+  }
+}
+
+function launchConfetti(count = 40) {
+  const colors = ['#d97742', '#a8324c', '#3a7ca5', '#7a9244', '#b8853a', '#2a1f1a'];
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.left = (window.innerWidth * 0.2 + Math.random() * window.innerWidth * 0.6) + 'px';
+      c.style.top = '15vh';
+      c.style.setProperty('--dx', (Math.random() * 300 - 150) + 'px');
+      c.style.animation = `confettiFall ${1.5 + Math.random() * 1.5}s ease-in forwards`;
+      c.style.transform = `rotate(${Math.random() * 360}deg)`;
+      document.getElementById('fxLayer').appendChild(c);
+      setTimeout(() => c.remove(), 3500);
+    }, i * 30);
+  }
+}
+
+let toastTimer = null;
+function showToast(msg, duration = 1400) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// Başlat
+render();
+
+// PWA Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(err => {
+      console.log('SW registration failed:', err);
+    });
+  });
+}
+</script>
+</body>
+</html>
