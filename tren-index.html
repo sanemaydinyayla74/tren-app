@@ -90,6 +90,18 @@
     gap: 14px;
     align-items: center;
   }
+  .sound-toggle {
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 6px;
+    line-height: 1;
+    opacity: 0.7;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .sound-toggle:hover { opacity: 1; }
+  .sound-toggle:active { transform: scale(0.9); }
   .stat-item {
     display: flex;
     align-items: center;
@@ -728,119 +740,100 @@
 // İÇERİK - 15 puzzle (kademeli zorluk)
 // =====================================================
 const PUZZLES = [
-  // ========== KOLAY: Tek ek (yumuşama yok) ==========
-  // 1: Sadece çoğul
+  // ============================================
+  // FAZ 1: TEKLI EK (1-9) - mekaniği öğret
+  // ============================================
+  // ÇOĞUL (1-3)
   {
     root: { text: 'çocuk', meaning: 'child' },
     target: { meaning: 'children', emoji: '👶' },
-    suffixes: [
-      { id: 's1', text: 'lar', role: 'plural', desc: 'makes it plural' },
-    ],
+    suffixes: [{ id: 's1', text: 'lar', role: 'plural', desc: 'makes it plural' }],
     distractors: [
       { id: 'd1', text: 'ler', role: 'plural' },
       { id: 'd2', text: 'um', role: 'poss' },
     ],
   },
-  // 2: Sadece çoğul (yumuşama yok)
   {
     root: { text: 'kedi', meaning: 'cat' },
     target: { meaning: 'cats', emoji: '🐈' },
-    suffixes: [
-      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
-    ],
+    suffixes: [{ id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' }],
     distractors: [
       { id: 'd1', text: 'lar', role: 'plural' },
       { id: 'd2', text: 'm', role: 'poss' },
     ],
   },
-  // 3: Sadece hal (yumuşama yok)
+  {
+    root: { text: 'ev', meaning: 'house' },
+    target: { meaning: 'houses', emoji: '🏠' },
+    suffixes: [{ id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' }],
+    distractors: [
+      { id: 'd1', text: 'lar', role: 'plural' },
+      { id: 'd2', text: 'im', role: 'poss' },
+    ],
+  },
+
+  // İYELİK / MY (4-6)
+  {
+    root: { text: 'anne', meaning: 'mother' },
+    target: { meaning: 'my mother', emoji: '👩' },
+    suffixes: [{ id: 's1', text: 'm', role: 'poss', desc: "shows 'my'" }],
+    distractors: [
+      { id: 'd1', text: 'n', role: 'poss' },
+      { id: 'd2', text: 'ler', role: 'plural' },
+    ],
+  },
+  {
+    root: { text: 'oda', meaning: 'room' },
+    target: { meaning: 'my room', emoji: '🚪' },
+    suffixes: [{ id: 's1', text: 'm', role: 'poss', desc: "shows 'my'" }],
+    distractors: [
+      { id: 'd1', text: 'n', role: 'poss' },
+      { id: 'd2', text: 'lar', role: 'plural' },
+    ],
+  },
+  {
+    root: { text: 'araba', meaning: 'car' },
+    target: { meaning: 'my car', emoji: '🚗' },
+    suffixes: [{ id: 's1', text: 'm', role: 'poss', desc: "shows 'my'" }],
+    distractors: [
+      { id: 'd1', text: 'sı', role: 'poss' },
+      { id: 'd2', text: 'lar', role: 'plural' },
+    ],
+  },
+
+  // HAL EKİ (7-9) - bulunma, yönelme, ayrılma
   {
     root: { text: 'okul', meaning: 'school' },
-    target: { meaning: 'in school', emoji: '🏫' },
-    suffixes: [
-      { id: 's1', text: 'da', role: 'case', desc: "shows 'in/at'" },
-    ],
+    target: { meaning: 'at school', emoji: '🏫' },
+    suffixes: [{ id: 's1', text: 'da', role: 'case', desc: "shows 'at/in'" }],
     distractors: [
       { id: 'd1', text: 'dan', role: 'case' },
       { id: 'd2', text: 'a', role: 'case' },
     ],
   },
-
-  // ========== YUMUŞAMA TANIŞMA ==========
-  // 4: İLK yumuşama! k → ğ
   {
-    root: { text: 'köpek', meaning: 'dog' },
-    target: { meaning: 'my dog', emoji: '🐕' },
-    suffixes: [
-      { id: 's1', text: 'im', role: 'poss', desc: "shows 'my'" },
-    ],
+    root: { text: 'ev', meaning: 'house' },
+    target: { meaning: 'to the house', emoji: '🏠' },
+    suffixes: [{ id: 's1', text: 'e', role: 'case', desc: "shows 'to'" }],
     distractors: [
-      { id: 'd1', text: 'in', role: 'poss' },
-      { id: 'd2', text: 'ler', role: 'plural' },
+      { id: 'd1', text: 'de', role: 'case' },
+      { id: 'd2', text: 'den', role: 'case' },
     ],
-    softening: { from: 'k', to: 'ğ', display: 'köpeğ' },
-    softeningIntro: true,
   },
-  // 5: p → b
   {
-    root: { text: 'kitap', meaning: 'book' },
-    target: { meaning: 'in my book', emoji: '📖' },
-    suffixes: [
-      { id: 's1', text: 'ım', role: 'poss', desc: "shows 'my'" },
-      { id: 's2', text: 'da', role: 'case', desc: "shows 'in'" },
-    ],
-    distractors: [
-      { id: 'd1', text: 'lar', role: 'plural' },
-      { id: 'd2', text: 'dan', role: 'case' },
-      { id: 'd3', text: 'ın', role: 'poss' },
-    ],
-    softening: { from: 'p', to: 'b', display: 'kitab' },
-  },
-  // 6: t → d
-  {
-    root: { text: 'kanat', meaning: 'wing' },
-    target: { meaning: 'his/her wing', emoji: '🦋' },
-    suffixes: [
-      { id: 's1', text: 'ı', role: 'poss', desc: "shows 'his/her'" },
-    ],
-    distractors: [
-      { id: 'd1', text: 'ım', role: 'poss' },
-      { id: 'd2', text: 'lar', role: 'plural' },
-      { id: 'd3', text: 'a', role: 'case' },
-    ],
-    softening: { from: 't', to: 'd', display: 'kanad' },
-  },
-  // 7: ç → c
-  {
-    root: { text: 'ağaç', meaning: 'tree' },
-    target: { meaning: 'to the tree', emoji: '🌳' },
-    suffixes: [
-      { id: 's1', text: 'a', role: 'case', desc: "shows 'to'" },
-    ],
+    root: { text: 'okul', meaning: 'school' },
+    target: { meaning: 'from school', emoji: '🎒' },
+    suffixes: [{ id: 's1', text: 'dan', role: 'case', desc: "shows 'from'" }],
     distractors: [
       { id: 'd1', text: 'da', role: 'case' },
-      { id: 'd2', text: 'lar', role: 'plural' },
-      { id: 'd3', text: 'ım', role: 'poss' },
+      { id: 'd2', text: 'a', role: 'case' },
     ],
-    softening: { from: 'ç', to: 'c', display: 'ağac' },
   },
 
-  // ========== ORTA: İki ek ==========
-  // 8: Yumuşama yok
-  {
-    root: { text: 'öğretmen', meaning: 'teacher' },
-    target: { meaning: 'from the teachers', emoji: '👩‍🏫' },
-    suffixes: [
-      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
-      { id: 's2', text: 'den', role: 'case', desc: "shows 'from'" },
-    ],
-    distractors: [
-      { id: 'd1', text: 'im', role: 'poss' },
-      { id: 'd2', text: 'de', role: 'case' },
-      { id: 'd3', text: 'lar', role: 'plural' },
-    ],
-  },
-  // 9: Yumuşama yok
+  // ============================================
+  // FAZ 2: İKİLİ KOMBINASYONLAR (10-18)
+  // ============================================
+  // ÇOĞUL + İYELİK (10-12)
   {
     root: { text: 'arkadaş', meaning: 'friend' },
     target: { meaning: 'my friends', emoji: '👥' },
@@ -853,10 +846,138 @@ const PUZZLES = [
       { id: 'd2', text: 'da', role: 'case' },
     ],
   },
-  // 10: Yumuşama yok
   {
-    root: { text: 'göz', meaning: 'eye' },
-    target: { meaning: 'in my eyes', emoji: '👁️' },
+    root: { text: 'kedi', meaning: 'cat' },
+    target: { meaning: 'my cats', emoji: '🐈' },
+    suffixes: [
+      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'im', role: 'poss', desc: "shows 'my'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'lar', role: 'plural' },
+      { id: 'd2', text: 'in', role: 'poss' },
+    ],
+  },
+  {
+    root: { text: 'saat', meaning: 'watch / hour' },
+    target: { meaning: 'my watches', emoji: '⌚' },
+    suffixes: [
+      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'im', role: 'poss', desc: "shows 'my'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'lar', role: 'plural' },
+      { id: 'd2', text: 'in', role: 'poss' },
+    ],
+  },
+
+  // İYELİK + HAL (13-15)
+  {
+    root: { text: 'ev', meaning: 'house' },
+    target: { meaning: 'to my house', emoji: '🏠' },
+    suffixes: [
+      { id: 's1', text: 'im', role: 'poss', desc: "shows 'my'" },
+      { id: 's2', text: 'e', role: 'case', desc: "shows 'to'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'ler', role: 'plural' },
+      { id: 'd2', text: 'de', role: 'case' },
+    ],
+  },
+  {
+    root: { text: 'oda', meaning: 'room' },
+    target: { meaning: 'in my room', emoji: '🚪' },
+    suffixes: [
+      { id: 's1', text: 'm', role: 'poss', desc: "shows 'my'" },
+      { id: 's2', text: 'da', role: 'case', desc: "shows 'in'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'lar', role: 'plural' },
+      { id: 'd2', text: 'a', role: 'case' },
+    ],
+  },
+  {
+    root: { text: 'araba', meaning: 'car' },
+    target: { meaning: 'from my car', emoji: '🚗' },
+    suffixes: [
+      { id: 's1', text: 'm', role: 'poss', desc: "shows 'my'" },
+      { id: 's2', text: 'dan', role: 'case', desc: "shows 'from'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'lar', role: 'plural' },
+      { id: 'd2', text: 'da', role: 'case' },
+    ],
+  },
+
+  // ÇOĞUL + HAL (16-18)
+  {
+    root: { text: 'çocuk', meaning: 'child' },
+    target: { meaning: 'to the children', emoji: '👶' },
+    suffixes: [
+      { id: 's1', text: 'lar', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'a', role: 'case', desc: "shows 'to'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'ler', role: 'plural' },
+      { id: 'd2', text: 'da', role: 'case' },
+    ],
+  },
+  {
+    root: { text: 'öğretmen', meaning: 'teacher' },
+    target: { meaning: 'from the teachers', emoji: '👩‍🏫' },
+    suffixes: [
+      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'den', role: 'case', desc: "shows 'from'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'lar', role: 'plural' },
+      { id: 'd2', text: 'de', role: 'case' },
+    ],
+  },
+  {
+    root: { text: 'ev', meaning: 'house' },
+    target: { meaning: 'in the houses', emoji: '🏘️' },
+    suffixes: [
+      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'de', role: 'case', desc: "shows 'in'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'lar', role: 'plural' },
+      { id: 'd2', text: 'den', role: 'case' },
+    ],
+  },
+
+  // ============================================
+  // FAZ 3: ÜÇLÜ ZINCIR (19-27)
+  // ============================================
+  {
+    root: { text: 'ev', meaning: 'house' },
+    target: { meaning: 'my houses', emoji: '🏠' },
+    suffixes: [
+      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'im', role: 'poss', desc: "shows 'my'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'in', role: 'poss' },
+      { id: 'd2', text: 'de', role: 'case' },
+    ],
+  },
+  {
+    root: { text: 'ev', meaning: 'house' },
+    target: { meaning: 'to my houses', emoji: '🏠' },
+    suffixes: [
+      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'im', role: 'poss', desc: "shows 'my'" },
+      { id: 's3', text: 'e', role: 'case', desc: "shows 'to'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'de', role: 'case' },
+      { id: 'd2', text: 'in', role: 'poss' },
+    ],
+  },
+  {
+    root: { text: 'ev', meaning: 'house' },
+    target: { meaning: 'in my houses', emoji: '🏠' },
     suffixes: [
       { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
       { id: 's2', text: 'im', role: 'poss', desc: "shows 'my'" },
@@ -867,9 +988,6 @@ const PUZZLES = [
       { id: 'd2', text: 'in', role: 'poss' },
     ],
   },
-
-  // ========== ZOR: Üç ek + yumuşama ==========
-  // 11: ev (yumuşama yok)
   {
     root: { text: 'ev', meaning: 'house' },
     target: { meaning: 'from my houses', emoji: '🏠' },
@@ -883,21 +1001,166 @@ const PUZZLES = [
       { id: 'd2', text: 'in', role: 'poss' },
     ],
   },
-  // 12: araba (yumuşama yok)
   {
-    root: { text: 'araba', meaning: 'car' },
-    target: { meaning: 'to our cars', emoji: '🚗' },
+    root: { text: 'anne', meaning: 'mother' },
+    target: { meaning: 'to my mothers', emoji: '👩' },
     suffixes: [
-      { id: 's1', text: 'lar', role: 'plural', desc: 'makes it plural' },
-      { id: 's2', text: 'mız', role: 'poss', desc: "shows 'our'" },
-      { id: 's3', text: 'a', role: 'case', desc: "shows 'to'" },
+      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'im', role: 'poss', desc: "shows 'my'" },
+      { id: 's3', text: 'e', role: 'case', desc: "shows 'to'" },
     ],
     distractors: [
-      { id: 'd1', text: 'da', role: 'case' },
-      { id: 'd2', text: 'ım', role: 'poss' },
+      { id: 'd1', text: 'lar', role: 'plural' },
+      { id: 'd2', text: 'da', role: 'case' },
     ],
   },
-  // 13: çiçek - 3 ek + k→ğ
+  {
+    root: { text: 'araba', meaning: 'car' },
+    target: { meaning: 'from my cars', emoji: '🚗' },
+    suffixes: [
+      { id: 's1', text: 'lar', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'ım', role: 'poss', desc: "shows 'my'" },
+      { id: 's3', text: 'dan', role: 'case', desc: "shows 'from'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'ler', role: 'plural' },
+      { id: 'd2', text: 'den', role: 'case' },
+    ],
+  },
+  {
+    root: { text: 'oda', meaning: 'room' },
+    target: { meaning: 'in my rooms', emoji: '🚪' },
+    suffixes: [
+      { id: 's1', text: 'lar', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'ım', role: 'poss', desc: "shows 'my'" },
+      { id: 's3', text: 'da', role: 'case', desc: "shows 'in'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'ler', role: 'plural' },
+      { id: 'd2', text: 'dan', role: 'case' },
+    ],
+  },
+  {
+    root: { text: 'öğretmen', meaning: 'teacher' },
+    target: { meaning: 'to my teachers', emoji: '👩‍🏫' },
+    suffixes: [
+      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'im', role: 'poss', desc: "shows 'my'" },
+      { id: 's3', text: 'e', role: 'case', desc: "shows 'to'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'lar', role: 'plural' },
+      { id: 'd2', text: 'de', role: 'case' },
+    ],
+  },
+  {
+    root: { text: 'arkadaş', meaning: 'friend' },
+    target: { meaning: 'from my friends', emoji: '👥' },
+    suffixes: [
+      { id: 's1', text: 'lar', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'ım', role: 'poss', desc: "shows 'my'" },
+      { id: 's3', text: 'dan', role: 'case', desc: "shows 'from'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'ler', role: 'plural' },
+      { id: 'd2', text: 'da', role: 'case' },
+    ],
+  },
+
+  // ============================================
+  // FAZ 4: YENİ ŞAHISLAR (28-32)
+  // ============================================
+  // YOUR (28-29)
+  {
+    root: { text: 'ev', meaning: 'house' },
+    target: { meaning: 'your house', emoji: '🏠' },
+    suffixes: [{ id: 's1', text: 'in', role: 'poss', desc: "shows 'your'" }],
+    distractors: [
+      { id: 'd1', text: 'im', role: 'poss' },
+      { id: 'd2', text: 'ler', role: 'plural' },
+    ],
+  },
+  {
+    root: { text: 'ev', meaning: 'house' },
+    target: { meaning: 'your houses', emoji: '🏠' },
+    suffixes: [
+      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'in', role: 'poss', desc: "shows 'your'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'lar', role: 'plural' },
+      { id: 'd2', text: 'im', role: 'poss' },
+    ],
+  },
+  // HIS/HER (30-31)
+  {
+    root: { text: 'araba', meaning: 'car' },
+    target: { meaning: 'his/her car', emoji: '🚗' },
+    suffixes: [{ id: 's1', text: 'sı', role: 'poss', desc: "shows 'his/her'" }],
+    distractors: [
+      { id: 'd1', text: 'm', role: 'poss' },
+      { id: 'd2', text: 'n', role: 'poss' },
+    ],
+  },
+  {
+    root: { text: 'oda', meaning: 'room' },
+    target: { meaning: 'his/her room', emoji: '🚪' },
+    suffixes: [{ id: 's1', text: 'sı', role: 'poss', desc: "shows 'his/her'" }],
+    distractors: [
+      { id: 'd1', text: 'm', role: 'poss' },
+      { id: 'd2', text: 'lar', role: 'plural' },
+    ],
+  },
+  // OUR (32)
+  {
+    root: { text: 'ev', meaning: 'house' },
+    target: { meaning: 'our house', emoji: '🏠' },
+    suffixes: [{ id: 's1', text: 'imiz', role: 'poss', desc: "shows 'our'" }],
+    distractors: [
+      { id: 'd1', text: 'im', role: 'poss' },
+      { id: 'd2', text: 'ler', role: 'plural' },
+    ],
+  },
+
+  // ============================================
+  // FAZ 5: YUMUŞAMA (33-45) - sürpriz kural!
+  // ============================================
+  // k → ğ (33-36)
+  {
+    root: { text: 'köpek', meaning: 'dog' },
+    target: { meaning: 'my dog', emoji: '🐕' },
+    suffixes: [{ id: 's1', text: 'im', role: 'poss', desc: "shows 'my'" }],
+    distractors: [
+      { id: 'd1', text: 'in', role: 'poss' },
+      { id: 'd2', text: 'ler', role: 'plural' },
+    ],
+    softening: { from: 'k', to: 'ğ', display: 'köpeğ' },
+    softeningIntro: true,
+  },
+  {
+    root: { text: 'çiçek', meaning: 'flower' },
+    target: { meaning: 'my flower', emoji: '🌷' },
+    suffixes: [{ id: 's1', text: 'im', role: 'poss', desc: "shows 'my'" }],
+    distractors: [
+      { id: 'd1', text: 'in', role: 'poss' },
+      { id: 'd2', text: 'ler', role: 'plural' },
+    ],
+    softening: { from: 'k', to: 'ğ', display: 'çiçeğ' },
+  },
+  {
+    root: { text: 'köpek', meaning: 'dog' },
+    target: { meaning: 'from my dogs', emoji: '🐕' },
+    suffixes: [
+      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'im', role: 'poss', desc: "shows 'my'" },
+      { id: 's3', text: 'den', role: 'case', desc: "shows 'from'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'lar', role: 'plural' },
+      { id: 'd2', text: 'in', role: 'poss' },
+    ],
+    softening: { from: 'k', to: 'ğ', display: 'köpeğ' },
+  },
   {
     root: { text: 'çiçek', meaning: 'flower' },
     target: { meaning: 'in my flowers', emoji: '🌷' },
@@ -908,11 +1171,35 @@ const PUZZLES = [
     ],
     distractors: [
       { id: 'd1', text: 'lar', role: 'plural' },
-      { id: 'd2', text: 'ım', role: 'poss' },
+      { id: 'd2', text: 'in', role: 'poss' },
     ],
     softening: { from: 'k', to: 'ğ', display: 'çiçeğ' },
   },
-  // 14: kitap - 3 ek + p→b
+
+  // p → b (37-39)
+  {
+    root: { text: 'kitap', meaning: 'book' },
+    target: { meaning: 'my book', emoji: '📖' },
+    suffixes: [{ id: 's1', text: 'ım', role: 'poss', desc: "shows 'my'" }],
+    distractors: [
+      { id: 'd1', text: 'ın', role: 'poss' },
+      { id: 'd2', text: 'lar', role: 'plural' },
+    ],
+    softening: { from: 'p', to: 'b', display: 'kitab' },
+  },
+  {
+    root: { text: 'kitap', meaning: 'book' },
+    target: { meaning: 'in my book', emoji: '📖' },
+    suffixes: [
+      { id: 's1', text: 'ım', role: 'poss', desc: "shows 'my'" },
+      { id: 's2', text: 'da', role: 'case', desc: "shows 'in'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'lar', role: 'plural' },
+      { id: 'd2', text: 'dan', role: 'case' },
+    ],
+    softening: { from: 'p', to: 'b', display: 'kitab' },
+  },
   {
     root: { text: 'kitap', meaning: 'book' },
     target: { meaning: 'to my books', emoji: '📚' },
@@ -927,19 +1214,86 @@ const PUZZLES = [
     ],
     softening: { from: 'p', to: 'b', display: 'kitab' },
   },
-  // 15: köpek - 3 ek + k→ğ final
+
+  // t → d (40-41)
   {
-    root: { text: 'köpek', meaning: 'dog' },
-    target: { meaning: 'from my dogs', emoji: '🐕' },
+    root: { text: 'kanat', meaning: 'wing' },
+    target: { meaning: 'his/her wing', emoji: '🦋' },
+    suffixes: [{ id: 's1', text: 'ı', role: 'poss', desc: "shows 'his/her'" }],
+    distractors: [
+      { id: 'd1', text: 'ım', role: 'poss' },
+      { id: 'd2', text: 'lar', role: 'plural' },
+    ],
+    softening: { from: 't', to: 'd', display: 'kanad' },
+  },
+  {
+    root: { text: 'kanat', meaning: 'wing' },
+    target: { meaning: 'my wings', emoji: '🦋' },
     suffixes: [
-      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
-      { id: 's2', text: 'im', role: 'poss', desc: "shows 'my'" },
-      { id: 's3', text: 'den', role: 'case', desc: "shows 'from'" },
+      { id: 's1', text: 'lar', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'ım', role: 'poss', desc: "shows 'my'" },
     ],
     distractors: [
-      { id: 'd1', text: 'lar', role: 'plural' },
-      { id: 'd2', text: 'in', role: 'poss' },
-      { id: 'd3', text: 'de', role: 'case' },
+      { id: 'd1', text: 'ler', role: 'plural' },
+      { id: 'd2', text: 'ın', role: 'poss' },
+    ],
+    softening: { from: 't', to: 'd', display: 'kanad' },
+  },
+
+  // ç → c (42-43)
+  {
+    root: { text: 'ağaç', meaning: 'tree' },
+    target: { meaning: 'to the tree', emoji: '🌳' },
+    suffixes: [{ id: 's1', text: 'a', role: 'case', desc: "shows 'to'" }],
+    distractors: [
+      { id: 'd1', text: 'da', role: 'case' },
+      { id: 'd2', text: 'lar', role: 'plural' },
+    ],
+    softening: { from: 'ç', to: 'c', display: 'ağac' },
+  },
+  {
+    root: { text: 'ağaç', meaning: 'tree' },
+    target: { meaning: 'from my trees', emoji: '🌳' },
+    suffixes: [
+      { id: 's1', text: 'lar', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'ım', role: 'poss', desc: "shows 'my'" },
+      { id: 's3', text: 'dan', role: 'case', desc: "shows 'from'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'ler', role: 'plural' },
+      { id: 'd2', text: 'da', role: 'case' },
+    ],
+    softening: { from: 'ç', to: 'c', display: 'ağac' },
+  },
+
+  // Final challenges (44-45)
+  {
+    root: { text: 'çocuk', meaning: 'child' },
+    target: { meaning: 'to my children', emoji: '👶' },
+    suffixes: [
+      { id: 's1', text: 'lar', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'ım', role: 'poss', desc: "shows 'my'" },
+      { id: 's3', text: 'a', role: 'case', desc: "shows 'to'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'ler', role: 'plural' },
+      { id: 'd2', text: 'da', role: 'case' },
+      { id: 'd3', text: 'in', role: 'poss' },
+    ],
+    softening: { from: 'k', to: 'ğ', display: 'çocuğ' },
+  },
+  {
+    root: { text: 'köpek', meaning: 'dog' },
+    target: { meaning: 'to your dogs', emoji: '🐕' },
+    suffixes: [
+      { id: 's1', text: 'ler', role: 'plural', desc: 'makes it plural' },
+      { id: 's2', text: 'in', role: 'poss', desc: "shows 'your'" },
+      { id: 's3', text: 'e', role: 'case', desc: "shows 'to'" },
+    ],
+    distractors: [
+      { id: 'd1', text: 'im', role: 'poss' },
+      { id: 'd2', text: 'de', role: 'case' },
+      { id: 'd3', text: 'lar', role: 'plural' },
     ],
     softening: { from: 'k', to: 'ğ', display: 'köpeğ' },
   },
@@ -967,7 +1321,100 @@ let state = {
   streak: 0,
   totalSolved: 0,
   isLocked: false,
+  soundOn: localStorage.getItem('tren-sound') !== 'off',
 };
+
+// Geri bildirim formu
+const FEEDBACK_URL = 'https://forms.gle/6DpEG4PpskXqgmqm8';
+
+// =====================================================
+// AUDIO SYSTEM - Web Audio API ile programatik ses
+// =====================================================
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) {
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) {
+      console.log('Audio not supported');
+      return null;
+    }
+  }
+  // iOS Safari: ses ancak kullanıcı dokunduktan sonra çalışır
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+function playTone(freq, duration = 0.08, type = 'sine', volume = 0.15) {
+  if (!state.soundOn) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(volume, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + duration);
+}
+
+function playSequence(notes, gap = 0.08) {
+  if (!state.soundOn) return;
+  notes.forEach((note, i) => {
+    setTimeout(() => {
+      playTone(note.freq, note.duration || 0.1, note.type || 'sine', note.volume || 0.15);
+    }, i * gap * 1000);
+  });
+}
+
+// Ses türleri (sade, subtle)
+const SOUNDS = {
+  // Vagon bağlandı - sade tık (yüksek-orta nota)
+  attach: () => playTone(660, 0.06, 'triangle', 0.12),
+  // Yanlış - alçak kısa krrak
+  wrong: () => playTone(180, 0.15, 'sawtooth', 0.10),
+  // Yumuşama ✨ - hızlı yukarı kayan ton
+  soften: () => {
+    playSequence([
+      { freq: 800, duration: 0.06, type: 'sine' },
+      { freq: 1200, duration: 0.08, type: 'sine' },
+    ], 0.05);
+  },
+  // Puzzle tamam - 3 nota yukarı (Do-Mi-Sol)
+  complete: () => {
+    playSequence([
+      { freq: 523, duration: 0.1, type: 'triangle', volume: 0.15 },
+      { freq: 659, duration: 0.1, type: 'triangle', volume: 0.15 },
+      { freq: 784, duration: 0.18, type: 'triangle', volume: 0.18 },
+    ], 0.1);
+  },
+  // Yıldız kazandı - kısa "ding"
+  star: () => playTone(1320, 0.12, 'sine', 0.15),
+  // Tüm oyun bitti - büyük başarı
+  victory: () => {
+    playSequence([
+      { freq: 523, duration: 0.12, type: 'triangle' },
+      { freq: 659, duration: 0.12, type: 'triangle' },
+      { freq: 784, duration: 0.12, type: 'triangle' },
+      { freq: 1047, duration: 0.3, type: 'triangle', volume: 0.18 },
+    ], 0.13);
+  },
+};
+
+function toggleSound() {
+  state.soundOn = !state.soundOn;
+  localStorage.setItem('tren-sound', state.soundOn ? 'on' : 'off');
+  const btn = document.getElementById('soundBtn');
+  if (btn) btn.textContent = state.soundOn ? '🔊' : '🔇';
+  if (state.soundOn) SOUNDS.attach(); // ses açıldı, küçük geri bildirim
+}
 
 // =====================================================
 // RENDER
@@ -1023,6 +1470,10 @@ function renderMenu(app) {
 
       <button class="modal-btn" data-action="start">START</button>
       <button class="modal-btn secondary" data-action="learn">📖 How Turkish works</button>
+      <div style="margin-top: 16px; text-align: center;">
+        <button class="sound-toggle" onclick="toggleSound()" id="soundBtn" style="font-size: 22px;">${state.soundOn ? '🔊' : '🔇'}</button>
+        <div style="font-size: 11px; color: var(--muted); margin-top: 4px; letter-spacing: 1px;">${state.soundOn ? 'sound on' : 'sound off'}</div>
+      </div>
     </div>
   `;
 }
@@ -1124,6 +1575,7 @@ function renderPlaying(app) {
         <div class="logo">T<span>ren</span></div>
       </div>
       <div class="header-stats">
+        <button class="sound-toggle" onclick="toggleSound()" id="soundBtn" aria-label="Toggle sound">${state.soundOn ? '🔊' : '🔇'}</button>
         <div class="stat-item hearts">${'♥'.repeat(state.lives)}${'♡'.repeat(3-state.lives)}</div>
         <div class="stat-item streak">🔥${state.streak}</div>
         <div class="stat-item score">${state.totalSolved}/${PUZZLES.length}</div>
@@ -1256,6 +1708,12 @@ function renderGameOver(app) {
 
         <button class="modal-btn" data-action="try-again">TRY AGAIN</button>
         <button class="modal-btn secondary" data-action="back-to-menu">BACK TO MENU</button>
+
+        <div style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--line); text-align: center;">
+          <a href="${FEEDBACK_URL}" target="_blank" rel="noopener" style="font-size: 11px; color: var(--muted); text-decoration: none; letter-spacing: 1px; text-transform: uppercase; font-weight: 700;">
+            💬 What stopped you? Tell me →
+          </a>
+        </div>
       </div>
     </div>
   `;
@@ -1291,7 +1749,15 @@ function renderWon(app) {
           This was just a taste. The real game has hundreds of trains, verbs, questions, and conversations.
         </div>
 
-        <button class="modal-btn" data-action="back-to-menu">BACK TO START</button>
+        <div style="background: var(--bg-alt); border: 2px dashed var(--root); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+          <div style="font-size: 13px; color: var(--ink); font-weight: 700; margin-bottom: 4px;">💬 Help shape Tren</div>
+          <div style="font-size: 11px; color: var(--muted); line-height: 1.5;">
+            I'm a Turkish teacher building this. Your 2 minutes of feedback shapes the next 100 puzzles.
+          </div>
+        </div>
+
+        <a href="${FEEDBACK_URL}" target="_blank" rel="noopener" class="modal-btn" style="text-decoration: none; display: block; background: var(--root); color: white; border-color: var(--ink);">GIVE FEEDBACK →</a>
+        <button class="modal-btn secondary" data-action="back-to-menu" style="margin-top: 8px;">BACK TO START</button>
       </div>
     </div>
   `;
@@ -1381,11 +1847,15 @@ function pickSuffix(id) {
   if (isCorrect) {
     const wasFirstSuffix = state.built.length === 0;
     state.built.push(suffix);
+    SOUNDS.attach();
     render();
 
     // İlk ek eklenince yumuşama varsa parıltı + animasyon tetikle
     if (wasFirstSuffix && puzzle.softening) {
-      setTimeout(() => triggerSoftening(), 100);
+      setTimeout(() => {
+        triggerSoftening();
+        SOUNDS.soften();
+      }, 100);
     }
 
     if (state.built.length === puzzle.suffixes.length) {
@@ -1396,10 +1866,12 @@ function pickSuffix(id) {
       setTimeout(() => {
         if (state.currentPuzzle >= PUZZLES.length - 1) {
           state.screen = 'won';
+          SOUNDS.victory();
         } else {
           state.screen = 'complete';
+          SOUNDS.complete();
         }
-        state.isLocked = false;  // Modal'da butonlar çalışsın
+        state.isLocked = false;
         render();
       }, 800);
     }
@@ -1408,6 +1880,7 @@ function pickSuffix(id) {
     state.isLocked = true;
     state.lives--;
     state.streak = 0;
+    SOUNDS.wrong();
 
     // Sallama
     const train = document.getElementById('train');
